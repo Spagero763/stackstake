@@ -4,7 +4,7 @@
 
 ## Status
 - [x] Day 1 — Core Clarity contract 
-- [ ] Day 2 — Testnet deploy + tests
+- [x] Day 2 — Testnet deploy + tests
 - [ ] Day 3 — React app scaffold + wallet connect
 - [ ] Day 4 — Stake / Unstake UI
 - [ ] Day 5 — Live dashboard
