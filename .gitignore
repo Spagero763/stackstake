@@ -5,3 +5,6 @@ dist/
 .env.local
 frontend/dist/
 .clarinet/
+deployments/
+coverage/
+costs/
