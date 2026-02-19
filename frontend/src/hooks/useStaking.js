@@ -1,24 +1,35 @@
 import { useState, useEffect, useCallback } from 'react'
-import { cvToValue, principalCV, uintCV, serializeCV, deserializeCV } from '@stacks/transactions'
+import { principalCV, uintCV, serializeCV, deserializeCV, cvToValue } from '@stacks/transactions'
 import { DEPLOYER_ADDRESS, CONTRACT_NAME, NETWORK } from '../config'
 
 const API = NETWORK === 'mainnet'
   ? 'https://api.mainnet.hiro.so'
   : 'https://api.testnet.hiro.so'
 
+function toHex(bytes) {
+  return '0x' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function fromHex(hex) {
+  const h = hex.startsWith('0x') ? hex.slice(2) : hex
+  return Uint8Array.from(h.match(/.{1,2}/g).map(b => parseInt(b, 16)))
+}
+
 async function readOnly(fnName, args, sender) {
-  const body = {
-    sender: sender || DEPLOYER_ADDRESS,
-    arguments: args.map(a => `0x${Buffer.from(serializeCV(a)).toString('hex')}`),
-  }
   const res = await fetch(
     `${API}/v2/contracts/call-read/${DEPLOYER_ADDRESS}/${CONTRACT_NAME}/${fnName}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sender: sender || DEPLOYER_ADDRESS,
+        arguments: args.map(a => toHex(serializeCV(a))),
+      }),
+    }
   )
   const data = await res.json()
-  if (!data.okay) throw new Error(data.cause || 'Contract call failed')
-  const cv = deserializeCV(Buffer.from(data.result.slice(2), 'hex'))
-  return cvToValue(cv, true)
+  if (!data.okay) throw new Error(data.cause || 'failed')
+  return cvToValue(deserializeCV(fromHex(data.result)), true)
 }
 
 export function useStaking(stxAddress) {
@@ -34,7 +45,7 @@ export function useStaking(stxAddress) {
     try {
       const res = await readOnly('get-staker-status', [principalCV(stxAddress)], stxAddress)
       setStakerStatus(res?.value ?? null)
-    } catch { setStakerStatus(null) }
+    } catch (e) { console.error('staker-status', e); setStakerStatus(null) }
   }, [stxAddress])
 
   const fetchPendingRewards = useCallback(async () => {
@@ -42,14 +53,14 @@ export function useStaking(stxAddress) {
     try {
       const res = await readOnly('get-pending-rewards', [principalCV(stxAddress)], stxAddress)
       setPendingRewards(res?.value ?? '0')
-    } catch { setPendingRewards(null) }
+    } catch (e) { console.error('pending-rewards', e); setPendingRewards(null) }
   }, [stxAddress])
 
   const fetchPoolStats = useCallback(async () => {
     try {
       const res = await readOnly('get-pool-stats', [], DEPLOYER_ADDRESS)
       setPoolStats(res?.value ?? res)
-    } catch {}
+    } catch (e) { console.error('pool-stats', e) }
   }, [])
 
   const fetchLeaderboard = useCallback(async () => {
@@ -57,34 +68,24 @@ export function useStaking(stxAddress) {
       const countRes = await readOnly('get-staker-count', [], DEPLOYER_ADDRESS)
       const count = Number(countRes?.value ?? 0)
       if (count === 0) { setLeaderboard([]); return }
-
-      const limit = Math.min(count, 50)
       const entries = []
-
-      for (let i = 0; i < limit; i++) {
+      for (let i = 0; i < Math.min(count, 50); i++) {
         try {
           const addrRes = await readOnly('get-staker-at-index', [uintCV(i)], DEPLOYER_ADDRESS)
           const addr = addrRes?.value
           if (!addr) continue
           const statusRes = await readOnly('get-staker-status', [principalCV(addr)], addr)
-          const s = statusRes?.value
-          if (s) entries.push({ address: addr, ...s })
+          if (statusRes?.value) entries.push({ address: addr, ...statusRes.value })
         } catch {}
       }
-
       entries.sort((a, b) => Number(b.amount?.value ?? 0) - Number(a.amount?.value ?? 0))
       setLeaderboard(entries)
-    } catch {}
+    } catch (e) { console.error('leaderboard', e) }
   }, [])
 
   const refetch = useCallback(async () => {
     setLoading(true)
-    await Promise.all([
-      fetchStakerStatus(),
-      fetchPendingRewards(),
-      fetchPoolStats(),
-      fetchLeaderboard(),
-    ])
+    await Promise.all([fetchStakerStatus(), fetchPendingRewards(), fetchPoolStats(), fetchLeaderboard()])
     setLastUpdated(new Date())
     setLoading(false)
   }, [fetchStakerStatus, fetchPendingRewards, fetchPoolStats, fetchLeaderboard])
