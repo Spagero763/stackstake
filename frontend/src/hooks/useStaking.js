@@ -148,7 +148,7 @@ export function useStaking(stxAddress) {
           const addrHex = parseHex(addrResult)
           const statusResult = await callReadOnly('get-staker-status', [addrHex], DEPLOYER_ADDRESS)
           const statusParsed = parseHex(statusResult)
-          if (statusParsed?.ok) entries.push({ address: addrHex, ...statusParsed.value })
+          if (statusParsed?.ok) entries.push({ address: addrHex, displayAddress: addrHex.slice(0, 8) + '...' + addrHex.slice(-6), ...statusParsed.value })
         } catch {}
       }
       entries.sort((a, b) => Number(b.amount ?? 0) - Number(a.amount ?? 0))

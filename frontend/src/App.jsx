@@ -362,8 +362,8 @@ function Leaderboard({ leaderboard, loading, stxAddress }) {
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
                     </td>
                     <td className="lb-addr">
-                      <a href={EXPLORER_ADDR(s.address)} target="_blank" rel="noreferrer">
-                        {fmtAddr(s.address)}
+                      <a href={`https://explorer.hiro.so/?chain=testnet`} target="_blank" rel="noreferrer">
+                        {s.displayAddress || fmtAddr(s.address)}
                       </a>
                       {isMe && <span className="you-badge">you</span>}
                     </td>
