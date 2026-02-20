@@ -2,6 +2,9 @@
 
 > Stake STX, earn rewards, compete on the leaderboard. Built on Stacks (Bitcoin L2).
 
+## Live Demo
+https://stackstake.vercel.app
+
 ## Status
 - [x] Day 1 — Core Clarity contract 
 - [x] Day 2 — Testnet deploy + tests
