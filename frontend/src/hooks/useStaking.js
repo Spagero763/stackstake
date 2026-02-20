@@ -1,35 +1,99 @@
 import { useState, useEffect, useCallback } from 'react'
-import { principalCV, uintCV, serializeCV, deserializeCV, cvToValue } from '@stacks/transactions'
 import { DEPLOYER_ADDRESS, CONTRACT_NAME, NETWORK } from '../config'
 
 const API = NETWORK === 'mainnet'
   ? 'https://api.mainnet.hiro.so'
   : 'https://api.testnet.hiro.so'
 
-function toHex(bytes) {
-  return '0x' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
-}
+const BASE = `${API}/v2/contracts/call-read/${DEPLOYER_ADDRESS}/${CONTRACT_NAME}`
 
-function fromHex(hex) {
-  const h = hex.startsWith('0x') ? hex.slice(2) : hex
-  return Uint8Array.from(h.match(/.{1,2}/g).map(b => parseInt(b, 16)))
-}
-
-async function readOnly(fnName, args, sender) {
-  const res = await fetch(
-    `${API}/v2/contracts/call-read/${DEPLOYER_ADDRESS}/${CONTRACT_NAME}/${fnName}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sender: sender || DEPLOYER_ADDRESS,
-        arguments: args.map(a => toHex(serializeCV(a))),
-      }),
-    }
-  )
+async function callReadOnly(fnName, args, sender) {
+  const url = `${BASE}/${fnName}`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sender: sender || DEPLOYER_ADDRESS, arguments: args }),
+  })
+  if (!res.ok) throw new Error(`${res.status}`)
   const data = await res.json()
-  if (!data.okay) throw new Error(data.cause || 'failed')
-  return cvToValue(deserializeCV(fromHex(data.result)), true)
+  if (!data.okay) throw new Error(data.cause)
+  return data.result
+}
+
+function parseHex(hex) {
+  const h = hex.startsWith('0x') ? hex.slice(2) : hex
+  const type = h.slice(0, 2)
+  const body = h.slice(2)
+  if (type === '07') return { ok: true, value: parseHex('0x' + body) }
+  if (type === '08') return { ok: false, value: parseHex('0x' + body) }
+  if (type === '01') return BigInt('0x' + body).toString()
+  if (type === '03') return true
+  if (type === '04') return false
+  if (type === '09') return null
+  if (type === '0a') return parseHex('0x' + body)
+  if (type === '0c') {
+    const count = parseInt(body.slice(0, 8), 16)
+    let pos = 8
+    const obj = {}
+    for (let i = 0; i < count; i++) {
+      const nameLen = parseInt(body.slice(pos, pos + 2), 16) * 2
+      pos += 2
+      const name = body.slice(pos, pos + nameLen).match(/.{2}/g)
+        .map(b => String.fromCharCode(parseInt(b, 16))).join('')
+      pos += nameLen
+      const { value, bytesConsumed } = parseHexWithLength('0x' + body.slice(pos))
+      obj[name] = value
+      pos += bytesConsumed
+    }
+    return obj
+  }
+  return hex
+}
+
+function parseHexWithLength(hex) {
+  const h = hex.startsWith('0x') ? hex.slice(2) : hex
+  const type = h.slice(0, 2)
+  if (type === '01' || type === '02') return { value: BigInt('0x' + h.slice(2, 34)).toString(), bytesConsumed: 34 }
+  if (type === '03') return { value: true, bytesConsumed: 2 }
+  if (type === '04') return { value: false, bytesConsumed: 2 }
+  if (type === '09') return { value: null, bytesConsumed: 2 }
+  if (type === '0a') {
+    const inner = parseHexWithLength('0x' + h.slice(2))
+    return { value: inner.value, bytesConsumed: 2 + inner.bytesConsumed }
+  }
+  if (type === '07') {
+    const inner = parseHexWithLength('0x' + h.slice(2))
+    return { value: inner.value, bytesConsumed: 2 + inner.bytesConsumed }
+  }
+  if (type === '05') return { value: 'principal', bytesConsumed: 44 }
+  if (type === '06') {
+    const nameLen = parseInt(h.slice(2, 4), 16) * 2
+    const addrLen = 42
+    return { value: 'contract', bytesConsumed: 2 + addrLen + 2 + nameLen }
+  }
+  return { value: hex, bytesConsumed: h.length }
+}
+
+let cachedPrincipalHex = null
+
+async function fetchPrincipalHex(stxAddress) {
+  if (cachedPrincipalHex) return cachedPrincipalHex
+  const countResult = await callReadOnly('get-staker-count', [], DEPLOYER_ADDRESS)
+  const count = Number(parseHex(countResult)?.value ?? 0)
+  for (let i = 0; i < count; i++) {
+    const idxHex = '0x01' + BigInt(i).toString(16).padStart(32, '0')
+    const addrResult = await callReadOnly('get-staker-at-index', [idxHex], DEPLOYER_ADDRESS)
+    const addrHex = parseHex(addrResult)
+    try {
+      const statusResult = await callReadOnly('get-staker-status', [addrHex], stxAddress)
+      const statusParsed = parseHex(statusResult)
+      if (statusParsed?.ok) {
+        cachedPrincipalHex = addrHex
+        return addrHex
+      }
+    } catch {}
+  }
+  return null
 }
 
 export function useStaking(stxAddress) {
@@ -40,57 +104,67 @@ export function useStaking(stxAddress) {
   const [loading,        setLoading]         = useState(false)
   const [lastUpdated,    setLastUpdated]     = useState(null)
 
+  const fetchPoolStats = useCallback(async () => {
+    try {
+      const result = await callReadOnly('get-pool-stats', [], DEPLOYER_ADDRESS)
+      const parsed = parseHex(result)
+      setPoolStats(parsed?.value ?? parsed)
+    } catch (e) { console.error('pool-stats', e) }
+  }, [])
+
   const fetchStakerStatus = useCallback(async () => {
     if (!stxAddress) { setStakerStatus(null); return }
     try {
-      const res = await readOnly('get-staker-status', [principalCV(stxAddress)], stxAddress)
-      setStakerStatus(res?.value ?? null)
+      const principalHex = await fetchPrincipalHex(stxAddress)
+      if (!principalHex) { setStakerStatus(null); return }
+      const result = await callReadOnly('get-staker-status', [principalHex], stxAddress)
+      const parsed = parseHex(result)
+      if (parsed?.ok) setStakerStatus(parsed.value)
+      else setStakerStatus(null)
     } catch (e) { console.error('staker-status', e); setStakerStatus(null) }
   }, [stxAddress])
 
   const fetchPendingRewards = useCallback(async () => {
     if (!stxAddress) { setPendingRewards(null); return }
     try {
-      const res = await readOnly('get-pending-rewards', [principalCV(stxAddress)], stxAddress)
-      setPendingRewards(res?.value ?? '0')
-    } catch (e) { console.error('pending-rewards', e); setPendingRewards(null) }
+      const principalHex = await fetchPrincipalHex(stxAddress)
+      if (!principalHex) { setPendingRewards(null); return }
+      const result = await callReadOnly('get-pending-rewards', [principalHex], stxAddress)
+      const parsed = parseHex(result)
+      if (parsed?.ok) setPendingRewards(parsed.value)
+    } catch (e) { console.error('pending-rewards', e) }
   }, [stxAddress])
-
-  const fetchPoolStats = useCallback(async () => {
-    try {
-      const res = await readOnly('get-pool-stats', [], DEPLOYER_ADDRESS)
-      setPoolStats(res?.value ?? res)
-    } catch (e) { console.error('pool-stats', e) }
-  }, [])
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const countRes = await readOnly('get-staker-count', [], DEPLOYER_ADDRESS)
-      const count = Number(countRes?.value ?? 0)
+      const countResult = await callReadOnly('get-staker-count', [], DEPLOYER_ADDRESS)
+      const count = Number(parseHex(countResult)?.value ?? 0)
       if (count === 0) { setLeaderboard([]); return }
       const entries = []
       for (let i = 0; i < Math.min(count, 50); i++) {
         try {
-          const addrRes = await readOnly('get-staker-at-index', [uintCV(i)], DEPLOYER_ADDRESS)
-          const addr = addrRes?.value
-          if (!addr) continue
-          const statusRes = await readOnly('get-staker-status', [principalCV(addr)], addr)
-          if (statusRes?.value) entries.push({ address: addr, ...statusRes.value })
+          const idxHex = '0x01' + BigInt(i).toString(16).padStart(32, '0')
+          const addrResult = await callReadOnly('get-staker-at-index', [idxHex], DEPLOYER_ADDRESS)
+          const addrHex = parseHex(addrResult)
+          const statusResult = await callReadOnly('get-staker-status', [addrHex], DEPLOYER_ADDRESS)
+          const statusParsed = parseHex(statusResult)
+          if (statusParsed?.ok) entries.push({ address: addrHex, ...statusParsed.value })
         } catch {}
       }
-      entries.sort((a, b) => Number(b.amount?.value ?? 0) - Number(a.amount?.value ?? 0))
+      entries.sort((a, b) => Number(b.amount ?? 0) - Number(a.amount ?? 0))
       setLeaderboard(entries)
     } catch (e) { console.error('leaderboard', e) }
   }, [])
 
   const refetch = useCallback(async () => {
     setLoading(true)
-    await Promise.all([fetchStakerStatus(), fetchPendingRewards(), fetchPoolStats(), fetchLeaderboard()])
+    await Promise.all([fetchPoolStats(), fetchStakerStatus(), fetchPendingRewards(), fetchLeaderboard()])
     setLastUpdated(new Date())
     setLoading(false)
-  }, [fetchStakerStatus, fetchPendingRewards, fetchPoolStats, fetchLeaderboard])
+  }, [fetchPoolStats, fetchStakerStatus, fetchPendingRewards, fetchLeaderboard])
 
   useEffect(() => {
+    cachedPrincipalHex = null
     refetch()
     const id = setInterval(refetch, 30_000)
     return () => clearInterval(id)
