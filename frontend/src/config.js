@@ -1,10 +1,15 @@
 // ============================================================
 // CONTRACT CONFIG
+//
+// Values fall back to the testnet deployment but can be overridden
+// at build time with Vite environment variables (see .env.example).
 // ============================================================
-export const DEPLOYER_ADDRESS = 'ST26TQH4FRPTKHQEYE6HZQG98R4CZE6PTJ8J1YYR8'
-export const CONTRACT_NAME    = 'stacking-pool'
+const env = import.meta.env ?? {}
+
+export const DEPLOYER_ADDRESS = env.VITE_DEPLOYER_ADDRESS || 'ST26TQH4FRPTKHQEYE6HZQG98R4CZE6PTJ8J1YYR8'
+export const CONTRACT_NAME    = env.VITE_CONTRACT_NAME || 'stacking-pool'
 export const CONTRACT_ID      = `${DEPLOYER_ADDRESS}.${CONTRACT_NAME}`
-export const NETWORK          = 'testnet' // 'mainnet' | 'testnet'
+export const NETWORK          = env.VITE_NETWORK || 'testnet' // 'mainnet' | 'testnet'
 
 export const USTX          = 1_000_000
 export const BLOCK_MINUTES = 10
