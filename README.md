@@ -2,6 +2,11 @@
 
 > Stake STX, earn rewards, compete on the leaderboard. Built on Stacks (Bitcoin L2).
 
+![Clarity](https://img.shields.io/badge/Clarity-2-5546FF)
+![React](https://img.shields.io/badge/React-18-61DAFB)
+![Tests](https://img.shields.io/badge/tests-vitest-6E9F18)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 ## Live Demo
 https://stackstake.vercel.app
 
@@ -39,6 +44,30 @@ https://stackstake.vercel.app
 | 1 month (4320 blocks) | +150 BPS |
 | 3 months (12960 blocks) | +300 BPS |
 
+
+## Local development
+
+Install dependencies and run the contract test suite:
+
+```bash
+npm install
+npm test
+```
+
+Run the frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Contract reference](docs/CONTRACT.md)
+- [Testing](docs/TESTING.md)
+- [Deployment](docs/DEPLOYMENT.md)
 
 ## License
 
