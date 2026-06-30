@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/Spagero763/stackstake/tree/main/docs
+    about: Read the architecture, contract and deployment docs first.
