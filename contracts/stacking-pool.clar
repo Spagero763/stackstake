@@ -24,6 +24,7 @@
 (define-constant ERR-NOTHING-TO-CLAIM   (err u107))
 (define-constant ERR-INSUFFICIENT-FUNDS (err u108))
 (define-constant ERR-NO-PENDING-OWNER   (err u109))
+(define-constant ERR-PAUSED              (err u110))
 
 ;; ---- Constants -----------------------------------------------------
 (define-constant CONTRACT-OWNER tx-sender)
@@ -60,6 +61,9 @@
 
 ;; Pending owner for a two-step ownership handover.
 (define-data-var pending-owner (optional principal) none)
+
+;; Emergency switch that blocks new deposits.
+(define-data-var paused bool false)
 
 ;; ---- Per-staker data -----------------------------------------------
 (define-map stakers principal
@@ -158,6 +162,10 @@
   (ok (var-get pending-owner))
 )
 
+(define-read-only (is-paused)
+  (ok (var-get paused))
+)
+
 (define-read-only (get-staker-status (user principal))
   (match (map-get? stakers user)
     s (let ((rpt (compute-rpt)))
@@ -246,6 +254,7 @@
 
 (define-public (stake (amount uint) (lock-duration uint))
   (let ((caller tx-sender))
+    (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (>= amount MIN-STAKE) ERR-ZERO-AMOUNT)
     (asserts! (is-none (map-get? stakers caller)) ERR-ALREADY-STAKING)
     (asserts!
@@ -288,6 +297,7 @@
       (caller tx-sender)
       (s (unwrap! (map-get? stakers caller) ERR-NO-STAKE))
     )
+    (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (>= amount MIN-STAKE) ERR-ZERO-AMOUNT)
     (checkpoint caller)
     (try! (stx-transfer? amount caller (as-contract tx-sender)))
@@ -361,6 +371,15 @@
 )
 
 ;; ---- Public: admin -------------------------------------------------
+
+;; Toggle the emergency pause that blocks new deposits.
+(define-public (set-paused (state bool))
+  (begin
+    (asserts! (is-owner) ERR-NOT-AUTHORIZED)
+    (var-set paused state)
+    (ok state)
+  )
+)
 
 ;; Step one of ownership transfer: the current owner nominates a successor.
 (define-public (set-pending-owner (who principal))
