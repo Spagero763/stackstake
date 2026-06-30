@@ -5,16 +5,16 @@
 ## Live Demo
 https://stackstake.vercel.app
 
-## Status
-- [x] Day 1 — Core Clarity contract 
-- [x] Day 2 — Testnet deploy + tests
-- [x] Day 3 — React app scaffold + wallet connect
-- [ ] Day 4 — Stake / Unstake UI
-- [ ] Day 5 — Live dashboard
-- [ ] Day 6 — Leaderboard
-- [ ] Day 7 — Shareable position links
-- [ ] Day 8 — Mobile polish
-- [ ] Day 9 — Mainnet deploy
+## Roadmap
+- [x] Core Clarity staking contract
+- [x] Testnet deployment and contract test suite
+- [x] React app with wallet connect
+- [x] Stake and unstake UI
+- [x] Live pool dashboard
+- [x] Leaderboard
+- [x] Shareable position links
+- [ ] Mobile polish
+- [ ] Mainnet deployment
 
 ### Functions
 
