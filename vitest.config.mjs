@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import { vitestSetupFilePath } from "@hirosystems/clarinet-sdk/vitest";
+import { vitestSetupFilePath } from "@stacks/clarinet-sdk/vitest";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -14,7 +14,8 @@ export default defineConfig({
     setupFiles: [vitestSetupFilePath],
     environmentOptions: {
       clarinet: {
-        manifest: resolve(__dirname, "./Clarinet.toml"),
+        manifestPath: "./Clarinet.toml",
+        initBeforeEach: true,
         coverage: false,
         costs: false,
       },

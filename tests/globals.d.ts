@@ -1,5 +1,5 @@
-import { Simnet } from "@hirosystems/clarinet-sdk";
-import "@hirosystems/clarinet-sdk/vitest";
+import { Simnet } from "@stacks/clarinet-sdk";
+import "@stacks/clarinet-sdk/vitest";
 
 declare global {
   var simnet: Simnet;
