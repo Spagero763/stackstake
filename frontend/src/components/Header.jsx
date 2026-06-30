@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { EXPLORER_ADDR } from '../config'
+import { EXPLORER_ADDR, NETWORK } from '../config'
 import { fmtAddr } from '../lib/format'
 
 const NAV_LINKS = [
@@ -23,7 +23,7 @@ export default function Header({
       <Link to="/" className="logo">
         <span className="logo-hex">⬡</span>
         <span className="logo-name">StackStake</span>
-        <span className="logo-tag">testnet</span>
+        <span className="logo-tag">{NETWORK}</span>
       </Link>
       <nav className="nav">
         {NAV_LINKS.map((n) => (
