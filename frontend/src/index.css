@@ -383,3 +383,44 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--font)
   from { background-position: 200% 0; }
   to   { background-position: -200% 0; }
 }
+
+/* ---- Footer ---- */
+.footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.5rem 1rem; margin-top: 2rem; border-top: 1px solid var(--border);
+  font-size: 0.85rem; color: var(--muted);
+}
+.footer-left { display: flex; align-items: center; gap: 0.6rem; }
+.footer-links { display: flex; gap: 1rem; }
+.footer-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--accent); }
+
+/* ---- Divider ---- */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.divider-labeled { display: flex; align-items: center; gap: 0.75rem; margin: 1.25rem 0; color: var(--muted); font-size: 0.75rem; }
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ---- Copy button + address link ---- */
+.copy-btn {
+  background: none; border: 1px solid var(--border-hi); color: var(--muted);
+  border-radius: 6px; padding: 0.2rem 0.55rem; font-size: 0.75rem; cursor: pointer;
+  font-family: var(--mono); transition: color 0.15s, border-color 0.15s;
+}
+.copy-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+.addr-link { color: var(--accent); text-decoration: none; font-family: var(--mono); }
+.addr-link:hover { text-decoration: underline; }
+
+/* ---- Tooltip ---- */
+.tooltip { position: relative; cursor: help; border-bottom: 1px dotted var(--muted); }
+.tooltip:hover::after {
+  content: attr(data-tip); position: absolute; bottom: 130%; left: 50%;
+  transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border-hi);
+  padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; white-space: nowrap; color: var(--text);
+}
+
+/* ---- Error boundary ---- */
+.error-boundary { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.error-boundary button {
+  margin-top: 1rem; background: var(--accent); color: #000; border: none;
+  border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; font-weight: 600;
+}
