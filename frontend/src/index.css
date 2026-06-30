@@ -439,3 +439,10 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--font)
 .faq-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; background: var(--surface); }
 .faq-item h3 { font-size: 1rem; margin-bottom: 0.4rem; }
 .faq-item p { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
+
+/* ---- APY table ---- */
+.apy-section { margin-top: 2rem; }
+.apy-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
+.apy-table th, .apy-table td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+.apy-table th { color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.apy-table td:last-child { color: var(--green); font-family: var(--mono); }

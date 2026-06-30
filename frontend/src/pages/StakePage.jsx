@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LOCK_PRESETS, DEPLOYER_ADDRESS, CONTRACT_NAME } from '../config'
 import { estApyPct } from '../lib/format'
+import ApyTable from '../components/ApyTable'
 
 // Stake form: new stake with a lock preset, or add to an existing stake.
 export default function StakePage({
@@ -121,6 +122,11 @@ export default function StakePage({
           </div>
         </div>
       )}
+
+      <div className="apy-section">
+        <h3 className="panel-title">APY by lock</h3>
+        <ApyTable />
+      </div>
     </div>
   )
 }
