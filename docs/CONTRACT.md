@@ -36,6 +36,16 @@ Add STX to the reward pool that rewards are paid from.
 ### `drain-reward-pool(amount)` (owner)
 Remove unspent STX from the reward pool.
 
+### `set-paused(state)` (owner)
+Flip the emergency pause. While paused, `stake` and `add-stake` revert with
+`ERR-PAUSED`, but claims and unstakes remain open.
+
+### `set-pending-owner(who)` (owner)
+Nominate a successor for ownership.
+
+### `accept-ownership()` (nominee)
+Finalize a two-step ownership transfer.
+
 ## Read-only functions
 
 | Function | Returns |
@@ -46,6 +56,17 @@ Remove unspent STX from the reward pool.
 | `get-staker-at-index(i)` | Principal at a leaderboard index |
 | `get-staker-count()` | Number of indexed stakers |
 | `estimate-apy(lock-duration)` | Base, bonus and estimated APY in bps |
+| `get-owner()` | Current contract owner |
+| `get-pending-owner()` | Nominated successor, if any |
+| `is-paused()` | Whether new deposits are paused |
+| `is-staker(user)` | Whether an address has a position |
+| `get-config()` | Staking parameters |
+| `get-version()` | Contract version string |
+| `get-lock-bonus(duration)` | Bonus bps for a lock duration |
+| `get-contract-balance()` | STX held by the contract |
+| `get-user-share-bps(user)` | A staker's share of the pool in bps |
+| `get-effective-rate-bps(user)` | Base plus lock bonus for a staker |
+| `has-active-lock(user)` | Whether a staker's lock is still active |
 
 ## Error codes
 
@@ -60,3 +81,5 @@ Remove unspent STX from the reward pool.
 | `u106` | `ERR-POOL-EMPTY` |
 | `u107` | `ERR-NOTHING-TO-CLAIM` |
 | `u108` | `ERR-INSUFFICIENT-FUNDS` |
+| `u109` | `ERR-NO-PENDING-OWNER` |
+| `u110` | `ERR-PAUSED` |
