@@ -193,6 +193,10 @@
   (ok (var-get next-index))
 )
 
+(define-read-only (is-staker (user principal))
+  (ok (is-some (map-get? stakers user)))
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
