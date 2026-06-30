@@ -209,6 +209,10 @@
   })
 )
 
+(define-read-only (get-lock-bonus (duration uint))
+  (ok (lock-bonus duration))
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
