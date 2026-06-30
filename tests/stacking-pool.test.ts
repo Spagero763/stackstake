@@ -38,7 +38,7 @@ describe("stake", () => {
     );
     expect(result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           "lock-bonus-bps": Cl.uint(50),
         }),
       })
@@ -56,7 +56,7 @@ describe("stake", () => {
     );
     expect(result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           "lock-bonus-bps": Cl.uint(300),
         }),
       })
@@ -171,7 +171,7 @@ describe("unstake", () => {
     const { result } = simnet.callPublicFn(CONTRACT, "unstake", [], user);
     expect(result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           unstaked: Cl.uint(STX(100)),
         }),
       })
@@ -243,7 +243,7 @@ describe("claim-rewards", () => {
     const { result } = simnet.callPublicFn(CONTRACT, "claim-rewards", [], user);
     expect(result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           claimed: expect.anything(),
         }),
       })
@@ -281,7 +281,7 @@ describe("pool stats and leaderboard", () => {
     const { result } = simnet.callReadOnlyFn(CONTRACT, "get-pool-stats", [], deployer);
     expect(result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           "total-staked": Cl.uint(STX(600)),
           "staker-count": Cl.uint(3),
           "reward-pool": Cl.uint(STX(5000)),
@@ -318,7 +318,7 @@ describe("pool stats and leaderboard", () => {
     );
     expect(noLock.result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           "total-bps": Cl.uint(50),
         }),
       })
@@ -329,7 +329,7 @@ describe("pool stats and leaderboard", () => {
     );
     expect(maxLock.result).toBeOk(
       expect.objectContaining({
-        data: expect.objectContaining({
+        value: expect.objectContaining({
           "total-bps": Cl.uint(350),
         }),
       })
