@@ -229,6 +229,10 @@
   )
 )
 
+(define-read-only (get-version)
+  (ok "1.1.0")
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
