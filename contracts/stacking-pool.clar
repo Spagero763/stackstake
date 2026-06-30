@@ -23,6 +23,7 @@
 (define-constant ERR-POOL-EMPTY         (err u106))
 (define-constant ERR-NOTHING-TO-CLAIM   (err u107))
 (define-constant ERR-INSUFFICIENT-FUNDS (err u108))
+(define-constant ERR-NO-PENDING-OWNER   (err u109))
 
 ;; ---- Constants -----------------------------------------------------
 (define-constant CONTRACT-OWNER tx-sender)
@@ -56,6 +57,9 @@
 
 ;; Current owner, mutable so ownership can be transferred.
 (define-data-var contract-owner principal CONTRACT-OWNER)
+
+;; Pending owner for a two-step ownership handover.
+(define-data-var pending-owner (optional principal) none)
 
 ;; ---- Per-staker data -----------------------------------------------
 (define-map stakers principal
@@ -148,6 +152,10 @@
 
 (define-read-only (get-owner)
   (ok (var-get contract-owner))
+)
+
+(define-read-only (get-pending-owner)
+  (ok (var-get pending-owner))
 )
 
 (define-read-only (get-staker-status (user principal))
@@ -313,6 +321,25 @@
 )
 
 ;; ---- Public: admin -------------------------------------------------
+
+;; Step one of ownership transfer: the current owner nominates a successor.
+(define-public (set-pending-owner (who principal))
+  (begin
+    (asserts! (is-owner) ERR-NOT-AUTHORIZED)
+    (var-set pending-owner (some who))
+    (ok who)
+  )
+)
+
+;; Step two: the nominee accepts and becomes the owner.
+(define-public (accept-ownership)
+  (let ((nominee (unwrap! (var-get pending-owner) ERR-NO-PENDING-OWNER)))
+    (asserts! (is-eq tx-sender nominee) ERR-NOT-AUTHORIZED)
+    (var-set contract-owner nominee)
+    (var-set pending-owner none)
+    (ok nominee)
+  )
+)
 
 (define-public (fund-reward-pool (amount uint))
   (begin
