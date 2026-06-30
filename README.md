@@ -30,10 +30,23 @@ https://stackstake.vercel.app
 | `claim-rewards()` | public | Claim accrued rewards |
 | `unstake()` | public | Withdraw stake + auto-claim rewards |
 | `fund-reward-pool(amount)` | public (owner) | Add STX to reward pool |
+| `set-paused(state)` | public (owner) | Emergency pause new deposits |
+| `set-pending-owner(who)` | public (owner) | Nominate a new owner |
+| `accept-ownership()` | public (nominee) | Finalize ownership transfer |
 | `get-staker-status(user)` | read-only | Full staker info |
 | `get-pool-stats()` | read-only | Global pool metrics |
 | `get-pending-rewards(user)` | read-only | Live pending rewards |
 | `estimate-apy(lock-duration)` | read-only | APY estimate |
+| `get-config()` | read-only | Staking parameters |
+| `get-average-stake()` | read-only | Mean stake across stakers |
+
+The full read-only surface is documented in [docs/CONTRACT.md](docs/CONTRACT.md).
+
+### App pages
+
+- Dashboard, Stake, Leaderboard and shareable position links
+- About and FAQ
+- A catch-all 404
 
 ### Lock Bonuses
 
