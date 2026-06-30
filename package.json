@@ -12,7 +12,7 @@
   "devDependencies": {
     "@stacks/clarinet-sdk": "^3.8.1",
     "@stacks/transactions": "^7.0.6",
-    "vitest": "^1.4.0",
+    "vitest": "^4.1.9",
     "vitest-environment-clarinet": "^3.0.2"
   }
 }
