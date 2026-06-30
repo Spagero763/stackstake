@@ -213,6 +213,22 @@
   (ok (lock-bonus duration))
 )
 
+(define-read-only (get-contract-balance)
+  (ok (stx-get-balance (as-contract tx-sender)))
+)
+
+;; A staker's share of the pool, expressed in basis points.
+(define-read-only (get-user-share-bps (user principal))
+  (let ((total (var-get total-staked)))
+    (match (map-get? stakers user)
+      s (if (is-eq total u0)
+          (ok u0)
+          (ok (/ (* (get amount s) u10000) total)))
+      (ok u0)
+    )
+  )
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
