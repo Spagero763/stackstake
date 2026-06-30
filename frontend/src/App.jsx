@@ -13,6 +13,7 @@ import Leaderboard from './pages/Leaderboard'
 import PositionPage from './pages/PositionPage'
 import NotFound from './pages/NotFound'
 import Faq from './pages/Faq'
+import About from './pages/About'
 
 const SUCCESS_MESSAGES = {
   stake: 'Stake broadcast!',
@@ -95,6 +96,7 @@ export default function App() {
           />
           <Route path="/position/:address" element={<PositionPage leaderboard={leaderboard} />} />
           <Route path="/faq" element={<Faq />} />
+          <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>
