@@ -249,6 +249,15 @@
   )
 )
 
+;; Average stake size across all current stakers, zero when empty.
+(define-read-only (get-average-stake)
+  (let ((count (var-get staker-count)))
+    (if (is-eq count u0)
+      (ok u0)
+      (ok (/ (var-get total-staked) count)))
+  )
+)
+
 ;; Whether a staker currently has an active (unexpired) lock.
 (define-read-only (has-active-lock (user principal))
   (match (map-get? stakers user)
