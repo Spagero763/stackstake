@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import NetworkBadge from './NetworkBadge'
 
 // App footer with links and the active network.
@@ -9,6 +10,8 @@ export default function Footer() {
         <NetworkBadge />
       </div>
       <nav className="footer-links">
+        <Link to="/about">About</Link>
+        <Link to="/faq">FAQ</Link>
         <a href="https://github.com/Spagero763/stackstake" target="_blank" rel="noreferrer">
           GitHub
         </a>
