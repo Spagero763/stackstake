@@ -54,6 +54,9 @@
 (define-data-var total-rewards-distributed uint u0)
 (define-data-var staker-count             uint u0)
 
+;; Current owner, mutable so ownership can be transferred.
+(define-data-var contract-owner principal CONTRACT-OWNER)
+
 ;; ---- Per-staker data -----------------------------------------------
 (define-map stakers principal
   {
@@ -126,6 +129,10 @@
         u0)))
 )
 
+(define-private (is-owner)
+  (is-eq tx-sender (var-get contract-owner))
+)
+
 ;; ---- Read-only -----------------------------------------------------
 
 (define-read-only (get-pool-stats)
@@ -137,6 +144,10 @@
     reward-per-token:          (compute-rpt),
     current-block:             block-height,
   })
+)
+
+(define-read-only (get-owner)
+  (ok (var-get contract-owner))
 )
 
 (define-read-only (get-staker-status (user principal))
@@ -305,7 +316,7 @@
 
 (define-public (fund-reward-pool (amount uint))
   (begin
-    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    (asserts! (is-owner) ERR-NOT-AUTHORIZED)
     (asserts! (> amount u0) ERR-ZERO-AMOUNT)
     (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
     (var-set reward-pool (+ (var-get reward-pool) amount))
@@ -315,10 +326,10 @@
 
 (define-public (drain-reward-pool (amount uint))
   (begin
-    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    (asserts! (is-owner) ERR-NOT-AUTHORIZED)
     (asserts! (<= amount (var-get reward-pool)) ERR-INSUFFICIENT-FUNDS)
     (var-set reward-pool (- (var-get reward-pool) amount))
-    (try! (as-contract (stx-transfer? amount tx-sender CONTRACT-OWNER)))
+    (try! (as-contract (stx-transfer? amount tx-sender (var-get contract-owner))))
     (ok { drained: amount })
   )
 )
