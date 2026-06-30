@@ -348,3 +348,22 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--font)
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ---- Badge ---- */
+.badge {
+  display: inline-flex; align-items: center; padding: 0.15rem 0.55rem;
+  border-radius: 999px; font-size: 0.7rem; font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.04em; border: 1px solid var(--border-hi);
+}
+.badge-neutral { color: var(--muted); }
+.badge-success { color: var(--green); border-color: var(--green); }
+.badge-warning { color: var(--accent); border-color: var(--accent-dim); }
+.badge-danger  { color: var(--red); border-color: var(--red); }
+
+/* ---- Alert ---- */
+.alert { border: 1px solid var(--border-hi); border-radius: var(--radius); padding: 0.75rem 1rem; margin: 0.75rem 0; }
+.alert-title { font-weight: 600; margin-bottom: 0.25rem; }
+.alert-body  { font-size: 0.85rem; color: var(--muted); }
+.alert-info    { border-left: 3px solid var(--accent); }
+.alert-success { border-left: 3px solid var(--green); }
+.alert-danger  { border-left: 3px solid var(--red); }
