@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:frontend": "npm --prefix frontend test",
+    "test:all": "npm test && npm run test:frontend"
   },
   "devDependencies": {
     "@stacks/clarinet-sdk": "^3.8.1",
