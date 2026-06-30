@@ -15,9 +15,17 @@ versioning once the contract is deployed to mainnet.
 - Test harness migrated to `@stacks/clarinet-sdk` with per-test session reset.
 
 ### Added
-- Test coverage for admin flows, APY estimation, lock bounds and read-only
-  edge cases.
-- Repository tooling: `.gitattributes`, `.editorconfig`, `.nvmrc`.
+- Mutable contract owner with a two-step ownership transfer.
+- Emergency pause that blocks new deposits while keeping withdrawals open.
+- Read-only helpers: owner, pending owner, pause state, config, version,
+  lock bonus, contract balance, user share, effective rate and active lock.
+- Frontend Vitest setup with unit tests for the formatting, field, validation,
+  numeric, share and time helpers.
+- Reusable frontend hooks and components, plus FAQ, about and 404 pages.
+- Test coverage for admin flows, APY estimation, lock bounds, read-only edge
+  cases, ownership, pause and effective rate.
+- Repository tooling: `.gitattributes`, `.editorconfig`, `.nvmrc`, Prettier
+  config, CI workflows and issue templates.
 
 ## 1.0.0
 
