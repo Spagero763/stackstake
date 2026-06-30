@@ -4,6 +4,8 @@ import { useWallet } from './hooks/useWallet'
 import { useStaking } from './hooks/useStaking'
 import { useContractCall } from './hooks/useContractCall'
 import Header from './components/Header'
+import Footer from './components/Footer'
+import ErrorBoundary from './components/ErrorBoundary'
 import Toast from './components/Toast'
 import Dashboard from './pages/Dashboard'
 import StakePage from './pages/StakePage'
@@ -67,29 +69,33 @@ export default function App() {
 
       {toast && <Toast msg={toast.msg} txId={toast.txId} onClose={() => setToast(null)} />}
 
-      <Routes>
-        <Route path="/" element={<Dashboard {...sharedProps} {...stakingProps} {...callProps} />} />
-        <Route
-          path="/stake"
-          element={
-            <StakePage
-              {...sharedProps}
-              {...stakingProps}
-              stake={stake}
-              addStake={addStake}
-              txStatus={txStatus}
-              action={action}
-            />
-          }
-        />
-        <Route
-          path="/leaderboard"
-          element={
-            <Leaderboard leaderboard={leaderboard} loading={loading} stxAddress={stxAddress} />
-          }
-        />
-        <Route path="/position/:address" element={<PositionPage leaderboard={leaderboard} />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Dashboard {...sharedProps} {...stakingProps} {...callProps} />} />
+          <Route
+            path="/stake"
+            element={
+              <StakePage
+                {...sharedProps}
+                {...stakingProps}
+                stake={stake}
+                addStake={addStake}
+                txStatus={txStatus}
+                action={action}
+              />
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <Leaderboard leaderboard={leaderboard} loading={loading} stxAddress={stxAddress} />
+            }
+          />
+          <Route path="/position/:address" element={<PositionPage leaderboard={leaderboard} />} />
+        </Routes>
+      </ErrorBoundary>
+
+      <Footer />
     </div>
   )
 }
