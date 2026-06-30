@@ -241,6 +241,23 @@
   (ok "1.1.0")
 )
 
+;; A staker's effective reward rate: base plus their lock bonus.
+(define-read-only (get-effective-rate-bps (user principal))
+  (match (map-get? stakers user)
+    s (ok (+ REWARD-RATE-BPS (lock-bonus (get lock-duration s))))
+    (ok REWARD-RATE-BPS)
+  )
+)
+
+;; Whether a staker currently has an active (unexpired) lock.
+(define-read-only (has-active-lock (user principal))
+  (match (map-get? stakers user)
+    s (ok (and (> (get lock-until s) u0)
+               (< block-height (get lock-until s))))
+    (ok false)
+  )
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
