@@ -197,6 +197,18 @@
   (ok (is-some (map-get? stakers user)))
 )
 
+(define-read-only (get-config)
+  (ok {
+    min-stake:       MIN-STAKE,
+    reward-rate-bps: REWARD-RATE-BPS,
+    min-lock-blocks: MIN-LOCK-BLOCKS,
+    max-lock-blocks: MAX-LOCK-BLOCKS,
+    lock-7d:         LOCK-7D,
+    lock-30d:        LOCK-30D,
+    lock-90d:        LOCK-90D,
+  })
+)
+
 (define-read-only (estimate-apy (lock-duration uint))
   (ok {
     base-bps:    REWARD-RATE-BPS,
