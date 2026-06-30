@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { to: '/', label: 'Dashboard' },
   { to: '/stake', label: 'Stake' },
   { to: '/leaderboard', label: 'Leaderboard' },
+  { to: '/faq', label: 'FAQ' },
 ]
 
 // Top navigation bar with wallet connect / disconnect.
