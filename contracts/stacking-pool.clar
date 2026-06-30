@@ -158,7 +158,7 @@
                               (- (get lock-until s) block-height)),
         })
       )
-    (err ERR-NO-STAKE)
+    ERR-NO-STAKE
   )
 )
 
