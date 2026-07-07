@@ -10,7 +10,7 @@
     "test:all": "npm test && npm run test:frontend"
   },
   "devDependencies": {
-    "@stacks/clarinet-sdk": "^3.8.1",
+    "@stacks/clarinet-sdk": "^3.21.1",
     "@stacks/transactions": "^7.0.6",
     "vitest": "^1.4.0",
     "vitest-environment-clarinet": "^3.0.2"
